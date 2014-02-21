@@ -29,13 +29,12 @@ class MainHandler(tornado.web.RequestHandler):
     def post(self):
         try:
             if 'Content-Encoding' in self.request.headers and self.request.headers['Content-Encoding'] == 'deflate':
-                message = zlib.decompress(self.request.body)
+                message = json.loads(zlib.decompress(self.request.body))
                 for waiter in websockets:
                     waiter.write_message(message)
             else:
                 message = self.request.body
             json_object = json.loads(message)
-            print(json_object)
         except Exception as e:
             print(e)
             logging.error("Error sending message", exc_info=True)
@@ -50,7 +49,7 @@ application = tornado.web.Application([
 if __name__ == "__main__":
     try:
         http_server = tornado.httpserver.HTTPServer(application)
-        http_server.listen(8080)
+        http_server.listen(9999)
         main_loop = tornado.ioloop.IOLoop.instance().start()
     except:
         raise
